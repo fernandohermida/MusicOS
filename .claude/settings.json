@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(beet version:*)",
+      "Bash(beet stats:*)",
+      "Bash(beet ls:*)",
+      "Bash(beet list:*)",
+      "Bash(beet export:*)",
+      "Bash(beet fields:*)",
+      "Bash(beet missing:*)",
+      "Bash(beet duplicates:*)",
+      "Bash(beet unimported:*)",
+      "Bash(beet import --pretend:*)",
+      "Bash(beet move --pretend:*)",
+      "Bash(uv run beet version:*)",
+      "Bash(uv run beet stats:*)",
+      "Bash(uv run beet ls:*)",
+      "Bash(uv run beet export:*)"
+    ]
+  }
+}

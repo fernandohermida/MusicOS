@@ -1,0 +1,65 @@
+# MusicOS beets config template.
+#
+# Copy this file to config.yaml (in the same beetsdir/ folder) and fill in
+# the values marked CHANGE-ME below. See docs/SETUP.md for the full
+# walkthrough and docs/LIBRARY-LAYOUT.md for why the paths: section below
+# looks the way it does — it's plain beets config, no plugin involved.
+
+# --------------- Where things live ---------------
+
+# CHANGE-ME: the external folder where music files actually live.
+# Never point this inside MusicOS/ — see CLAUDE.md's invariants.
+directory: CHANGE-ME/path/to/your/music/library
+
+# Relative paths resolve inside BEETSDIR (this file's own directory).
+library: library.db
+
+# --------------- Plugins ---------------
+# Zero-extra-dependency set for v1 — see docs/BEETS-CHEATSHEET.md.
+# fetchart/lastgenre (used by music-curate) are NOT listed here: they need
+# extra pip packages that aren't installed by default. Add them only after
+# reinstalling beets with those extras (see docs/SETUP.md) — enabling a
+# plugin here without its dependency installed stops beets from starting.
+plugins: export types missing duplicates unimported limit musicbrainz smartplaylist
+
+# --------------- On-disk layout ---------------
+# Keys other than 'default' are beets queries, tried in the order they
+# appear here — first match wins, 'default' is always the final fallback
+# regardless of where it's written. See docs/LIBRARY-LAYOUT.md.
+
+paths:
+  singleton: "%upper{%left{$artist,1}}/$artist/Non-Album/$title"
+  albumtype:soundtrack: Soundtracks/$album%aunique{}/$track $title
+  comp: Various Artists/$album%aunique{}/$track $title
+  albumartist::^[0-9]: "#/$albumartist/$album%aunique{}/$track $title"
+  # Quoted because it starts with '%', which YAML would otherwise treat as
+  # a reserved directive indicator.
+  default: "%upper{%left{$albumartist,1}}/$albumartist/$album%aunique{}/$track $title"
+
+# --------------- Machine-readable output ---------------
+# Pins export formatting so music-query/music-organize/music-lint parse
+# consistently — see docs/BEETS-CHEATSHEET.md's export-formatting gotchas.
+
+time_format: '%Y-%m-%d %H:%M:%S'
+format_raw_length: yes
+
+# --------------- Playlists (music-playlist) ---------------
+# auto: no is deliberate — MusicOS regenerates playlists explicitly via the
+# music-playlist skill, not silently on every database change.
+
+smartplaylist:
+  auto: no
+  playlist_dir: CHANGE-ME/path/to/where/your/player/reads/playlists
+  relative_to: CHANGE-ME/path/to/your/music/library   # should match directory: above
+  playlists: []
+    # - name: 'Jazz.m3u'
+    #   query: 'genre:jazz'
+
+# --------------- Import behavior ---------------
+# Defaults are sane; music-ingest overrides per-invocation as needed
+# (--pretend, --set, -q --quiet-fallback skip). Nothing to change here
+# unless you have a strong preference.
+
+import:
+  copy: yes
+  write: yes

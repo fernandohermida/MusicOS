@@ -1,0 +1,14 @@
+{
+  "name": "musicos",
+  "displayName": "MusicOS",
+  "version": "0.3.1",
+  "description": "Claude Code skills for organizing a real music library on top of beets",
+  "author": {
+    "name": "Fernando Hermida"
+  },
+  "homepage": "https://github.com/CHANGE-ME/musicos",
+  "repository": "https://github.com/CHANGE-ME/musicos",
+  "license": "MIT",
+  "keywords": ["beets", "music", "music-library", "organization"],
+  "skills": "./.claude/skills"
+}

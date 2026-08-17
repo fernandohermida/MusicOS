@@ -1,0 +1,13 @@
+{
+  "name": "musicos",
+  "owner": {
+    "name": "Fernando Hermida"
+  },
+  "plugins": [
+    {
+      "name": "musicos",
+      "source": ".",
+      "description": "Organize a real music library with beets, via Claude Code skills"
+    }
+  ]
+}
