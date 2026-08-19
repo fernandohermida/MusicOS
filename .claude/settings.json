@@ -3,6 +3,8 @@
     "allow": [
       "Bash(beet version:*)",
       "Bash(beet stats:*)",
+      "Bash(beet config:*)",
+      "Bash(beet config --path:*)",
       "Bash(beet ls:*)",
       "Bash(beet list:*)",
       "Bash(beet export:*)",
@@ -14,8 +16,17 @@
       "Bash(beet move --pretend:*)",
       "Bash(uv run beet version:*)",
       "Bash(uv run beet stats:*)",
+      "Bash(uv run beet config:*)",
+      "Bash(uv run beet config --path:*)",
       "Bash(uv run beet ls:*)",
-      "Bash(uv run beet export:*)"
+      "Bash(uv run beet list:*)",
+      "Bash(uv run beet export:*)",
+      "Bash(uv run beet fields:*)",
+      "Bash(uv run beet missing:*)",
+      "Bash(uv run beet duplicates:*)",
+      "Bash(uv run beet unimported:*)",
+      "Bash(uv run beet import --pretend:*)",
+      "Bash(uv run beet move --pretend:*)"
     ]
   }
 }

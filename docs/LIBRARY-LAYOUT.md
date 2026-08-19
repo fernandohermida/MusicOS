@@ -25,27 +25,45 @@ This is implemented entirely through beets' own `paths:` config — **no plugin 
 ## The config
 
 ```yaml
+item_fields:
+    # Alphabetical bucket: "A".."Z" or "#" for anything that doesn't start
+    # with a letter (numbers, symbols, "3T", "2Pac", etc). Ignores a leading
+    # English ("The"/"A"/"An") or Spanish definite ("El"/"La"/"Los"/"Las")
+    # article for sorting purposes only — $albumartist itself (and the
+    # folder name derived from it) is left untouched, so "The Beatles"
+    # still reads "The Beatles" but buckets under B, not T, and "Las
+    # Pelotas" still reads "Las Pelotas" but buckets under P, not L.
+    initial: |
+        name = albumartist or ''
+        for article in ('the ', 'a ', 'an ', 'el ', 'la ', 'los ', 'las '):
+            if name.lower().startswith(article):
+                name = name[len(article):]
+                break
+        return name[0].upper() if name and name[0].isalpha() else '#'
+    multidisc: 1 if (disctotal or 0) > 1 else 0
+
 paths:
-  singleton: "%upper{%left{$artist,1}}/$artist/Non-Album/$title"
-  albumtype:soundtrack: Soundtracks/$album%aunique{}/$track $title
-  comp: Various Artists/$album%aunique{}/$track $title
-  albumartist::^[0-9]: "#/$albumartist/$album%aunique{}/$track $title"
-  default: "%upper{%left{$albumartist,1}}/$albumartist/$album%aunique{}/$track $title"
+    albumtype:soundtrack: Soundtracks/$album%aunique{}/%if{$multidisc,$disc-}$track $artist - $title
+    default: $initial/$albumartist/$album%aunique{}/%if{$multidisc,$disc-}$track $title
+    singleton: $initial/Non-Album/$artist/$title
+    comp: Various Artists/$album%aunique{}/%if{$multidisc,$disc-}$track $artist - $title
 ```
 
 Two entirely different beets mechanisms are doing the work here, and it's worth understanding both:
 
-### 1. Path *templates* (`%upper`, `%left`, ...) — for the per-letter folders
+### 1. The `$initial` computed field (via the `inline` plugin) — for the per-letter folders
 
-`%left{$albumartist,1}` takes the first character of the artist name; `%upper{...}` uppercases it. So `default` alone gives every artist its own single-letter folder (`Aphex Twin` → `A/`, `Beatles, The` → `B/`) with zero extra config — no ranges to define, no plugin. `singleton` does the same thing for standalone tracks (no album), using `$artist` instead of `$albumartist` since singletons have no album-level artist field.
+Unlike a plain path template, `$initial` is Python code, computed once per item/album by the `inline` plugin and then used like any other field in the `paths:` templates below. It takes the first character of `$albumartist` (stripping a leading English article — "The"/"A"/"An" — or Spanish definite article — "El"/"La"/"Los"/"Las" — first, so "The Beatles" buckets under `B`, not `T`, and "Las Pelotas" buckets under `P`, not `L` — the stored `$albumartist` field itself is untouched, only the bucketing is affected), uppercases it, and falls back to the literal string `#` for anything that isn't alphabetic — not just for digits, but for **any** non-alphabetic leading character (symbols like `!!!` included, not only digits). `default` and `singleton` both reference `$initial` directly, so every artist gets its own single-letter folder (`Aphex Twin` → `A/`, `Beatles, The` → `B/`) with zero extra ranges to define. `singleton` uses `$artist` for the rest of its path (no album-level artist field on a standalone track), but still buckets via the same `$initial` field.
 
-### 2. Path *keys* (`comp`, `albumtype:soundtrack`, the `::^[0-9]` line) — for the special categories
+Only the *definite* Spanish articles are stripped (`el`/`la`/`los`/`las`), matching how "the" is stripped regardless of number in English — indefinite Spanish articles (`un`/`una`/`unos`/`unas`, the equivalent of "a"/"an") aren't in the list, since no artist in this library currently needs it; add them the same way if that changes.
 
-The other three entries aren't part of the path template language at all — they're **beets queries** used as config *keys*. This is a separate, documented beets feature: any key in `paths:` other than `default` is parsed as a query, and whichever album/item matches wins that path template. `comp` and `singleton` are recognized directly; anything else (like `albumtype:soundtrack`) is an ordinary query string. Confirmed straight from beets' own config reference: "in addition to `default`, `comp`, and `singleton`, you can condition path queries based on beets queries... The queries are tested in the order they appear in the configuration file... beets will use the path format for the *first* matching query" — `default` is always the fallback, evaluated last, regardless of where it's written.
+An earlier version of this scheme used a path *template* (`%upper{%left{$albumartist,1}}`) plus a separate regex query key (`albumartist::^[0-9]`) to route only digit-leading artists to `#/`. That's been replaced by the single `$initial` field above — simpler (one mechanism instead of two) and broader (catches symbol-leading names too, not just digit-leading ones).
+
+### 2. Path *keys* (`comp`, `albumtype:soundtrack`) — for the special categories
+
+`comp` and `albumtype:soundtrack` aren't part of the path template language at all — they're **beets queries** used as config *keys*. This is a separate, documented beets feature: any key in `paths:` other than `default` is parsed as a query, and whichever album/item matches wins that path template. `comp` and `singleton` are recognized directly; anything else (like `albumtype:soundtrack`) is an ordinary query string. Confirmed straight from beets' own config reference: "in addition to `default`, `comp`, and `singleton`, you can condition path queries based on beets queries... The queries are tested in the order they appear in the configuration file... beets will use the path format for the *first* matching query" — `default` is always the fallback, evaluated last, regardless of where it's written.
 
 **Order matters.** In the config above, `albumtype:soundtrack` is listed before `comp`, so a compilation soundtrack lands in `Soundtracks/`, not `Various Artists/`. Swap the order if you'd rather compilation status win.
-
-**The digit-leading `#` bucket is the one piece that genuinely needs the query mechanism, not the template mechanism.** Beets' `%if` template function only tests whether a string is empty/`"0"`/`"false"` — it has no comparison or regex support, so there's no way to ask "does this artist name start with a digit?" from *inside* a path template. Queries, on the other hand, support regex directly (`field::regex`), so `albumartist::^[0-9]` — a normal beets query, evaluated the same way `comp` or `albumtype:soundtrack` is — does exactly this: any album whose `albumartist` starts with a digit routes to `#/` before ever reaching the letter-bucketing `default` template. This is the reason the config above needs *two* different mechanisms instead of one: the template language can bucket by letter, but only the query language can classify by character type. (The `#` name is a common convention for "numeric-leading" sections in alphabetized media listings — it's just a literal folder name here, not special syntax.)
 
 ## Why plain `$albumartist` instead of `$albumartist_sort`
 
@@ -53,7 +71,7 @@ An earlier version of this scheme preferred `$albumartist_sort` (MusicBrainz's s
 
 ## Non-alphanumeric artist names
 
-Anything that's neither alphabetic nor caught by the digit regex (an artist name starting with a symbol, e.g. `!!!`) falls through to `default` and gets a literal single-character folder for whatever that character is — note this could theoretically produce a folder literally named `#` if an artist name starts with that character, colliding with the digit bucket's folder; a rare enough edge case not to design around up front, but worth knowing about. This wasn't asked for and isn't handled specially — easy to special-case later with another regex query key (`albumartist::^[^a-zA-Z0-9]`) if it turns out to matter for your collection.
+Unlike the earlier template-based scheme (which only special-cased digit-leading names via a regex query key), `$initial`'s `isalpha()` check routes **any** non-alphabetic leading character — digits, symbols (`!!!`, `3T`-style, etc.) — into the same `#/` bucket, not just digits. There's no longer an unhandled edge case here: everything that isn't a plain letter falls into `#/` by construction, including an artist name that literally starts with the `#` character itself (a genuine, if rare, collision worth knowing about, but not one that needs a workaround).
 
 ## Changing the scheme later
 

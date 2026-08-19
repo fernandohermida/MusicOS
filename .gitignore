@@ -2,14 +2,18 @@
 # it's never vendored into this repo, so there's nothing beets-related to
 # ignore here beyond BEETSDIR's own contents below.
 
-# BEETSDIR contents: config.yaml is the only thing meant to be tracked.
-# The DB, logs, and scratch exports are local, machine-specific, and can be large.
+# BEETSDIR contents: nothing under here is tracked. config.yaml is
+# machine-specific (real directory: paths, and it can carry API keys, e.g.
+# acoustid.apikey) — beetsdir/config.example.yaml at the repo root is the
+# tracked template instead. The DB, logs, and scratch exports are local and
+# can be large.
 /beetsdir/library.db
 /beetsdir/library.db-*
 /beetsdir/state.pickle
 /beetsdir/logs/
 /beetsdir/exports/
 /beetsdir/config.yaml
+/beetsdir/venv/
 
 # Never accidentally track the music collection itself, in case it's ever
 # nested under MusicOS instead of kept fully external.

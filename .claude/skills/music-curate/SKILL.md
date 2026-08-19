@@ -24,6 +24,7 @@ Unlike every other MusicOS skill, this one depends on plugins that need extra pi
 1. Check whether `fetchart`/`lastgenre` are already in the enabled plugins list (`beet version` prints them, or read `beetsdir/config.yaml`).
 2. If not, this is a one-time setup step, not something to silently fix: tell the user they need to reinstall beets with the extras, e.g. `pipx install --force "beets[fetchart,lastgenre]"` (or the `pip`/`uv tool` equivalent for however they installed it — see `docs/SETUP.md`), then add `fetchart lastgenre` to the `plugins:` line in `beetsdir/config.yaml`.
 3. Only proceed to the actual curation steps below once both plugins show up in `beet version`'s enabled-plugins list.
+4. **If invoking `beet` from a non-interactive shell (this is the normal case for an agent's Bash tool)**, don't trust that `~/.bash_profile`/`~/.bashrc`/`~/.zshrc` exports actually reached the process — those files aren't sourced by non-login/non-interactive shells at all. Confirm `beet version`'s `data directory:`/library path (add `-vv`) actually matches this repo's `beetsdir/`, not some other cached `BEETSDIR`. If it's a manual venv install, also confirm `beet -vv lastgenre <query>` isn't logging `CERTIFICATE_VERIFY_FAILED` (macOS Python-framework builds need `SSL_CERT_FILE` pointed at the venv's `certifi` bundle) — that failure mode is silent otherwise and looks identical to "no genre found." See `docs/SETUP.md`'s "Non-interactive/non-login shells" note for the fix; pass `BEETSDIR=...`/`SSL_CERT_FILE=...` inline per command rather than assuming a profile export applies.
 
 Don't add these plugins to the base config for someone who hasn't installed the extras — beets will fail to start entirely if a listed plugin's dependency is missing.
 
@@ -51,3 +52,4 @@ Don't add these plugins to the base config for someone who hasn't installed the 
 - Running `beet fetchart -f` or setting `lastgenre.force: yes` by default — both overwrite existing data; only do this when the user explicitly asks to refresh what's already there.
 - Assuming album art gets embedded into file tags — by default it's a sibling `cover.jpg`, not embedded.
 - Treating this as the place for lyrics — that's explicitly out of scope for MusicOS.
+- Trusting a "no genre found" result at face value without checking for a silent `SSL_CERT_FILE`/`BEETSDIR` env problem first (see preflight step 4) — an agent's non-interactive shell won't have sourced the user's profile exports.

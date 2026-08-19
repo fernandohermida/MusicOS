@@ -7,7 +7,7 @@ description: Use when doing a periodic health check of the MusicOS library, or a
 
 ## Overview
 
-Runs the full set of library-hygiene checks beets already ships with, reports the results, and updates `beetsdir/logs/last-health-report.md` (overwritten each run) plus one line in the shared operational log. Every check here is a stock beets command or zero-extra-dependency plugin — nothing custom.
+Runs the full set of library-hygiene checks beets already ships with, reports the results, and updates `beetsdir/logs/last-health-report.md` (overwritten each run) plus one line in the shared operational log. Every check here is a stock beets command or a zero-extra-dependency plugin — nothing that writes to files or tags.
 
 ## When to use
 

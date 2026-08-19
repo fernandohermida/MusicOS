@@ -40,7 +40,7 @@ There is no `beets/` directory in this repo — beets is installed separately (s
 - **`beet modify` writes audio file tags by default.** Any bookkeeping-only write must pass `-W` or it will rewrite files on disk.
 - **Always preview before moving files.** `beet move --pretend` (or `beet import --pretend`) before the real command, every time — these operations touch the user's actual files.
 - **The library is the source of truth.** No parallel notes/wiki/synthesis artifact exists to disagree with it.
-- **Nothing here has been installed or run for real yet.** Until `docs/SETUP.md` has been walked through, there is no live `BEETSDIR`, no `library.db`, and no external library folder — skills should fail gracefully and point at setup rather than assume a live library exists.
+
 
 ## Where to look next
 

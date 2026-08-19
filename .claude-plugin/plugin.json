@@ -6,8 +6,8 @@
   "author": {
     "name": "Fernando Hermida"
   },
-  "homepage": "https://github.com/CHANGE-ME/musicos",
-  "repository": "https://github.com/CHANGE-ME/musicos",
+  "homepage": "https://github.com/fernandohermida/musicos",
+  "repository": "https://github.com/fernandohermida/musicos",
   "license": "MIT",
   "keywords": ["beets", "music", "music-library", "organization"],
   "skills": "./.claude/skills"

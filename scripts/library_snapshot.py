@@ -72,14 +72,26 @@ def run_export(
 ) -> list[dict]:
     cmd = ["beet", "export", "-f", "json"]
     if albums:
-        cmd.append("-a")
+        cmd.append("-a")  # -a implies --library
+    else:
+        # Without -l, item exports read tags from disk file-by-file
+        # (beetsplug/info.py's tag_data) instead of the DB, and silently
+        # return [] on an empty query instead of "everything" -- see
+        # docs/BEETS-CHEATSHEET.md's "Structured output" section.
+        cmd.append("-l")
     if fields:
         cmd += ["-i", ",".join(fields)]
     cmd += query
 
-    result = subprocess.run(
-        cmd, capture_output=True, text=True, check=False
-    )
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, check=False
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError(
+            "`beet` not found on PATH — is beets installed? "
+            "Run the music-setup skill (or see docs/SETUP.md) first."
+        ) from exc
     if result.returncode != 0:
         raise RuntimeError(
             f"`{' '.join(cmd)}` failed (exit {result.returncode}): "

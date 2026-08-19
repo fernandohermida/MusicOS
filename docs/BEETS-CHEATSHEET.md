@@ -38,6 +38,7 @@ beet export [-l | -a] [-i key1,key2,...] [-f json|jsonlines|csv|xml] [-o file] [
 - `-a` for albums, default is items/tracks.
 - `-i` restricts to specific fields (cheaper, cleaner output).
 - `-f json` is the default recommendation for agent parsing.
+- **Always pass `-l`/`--library` for item exports too** (`-a` already implies it for albums). Without it, `beet export` reads tags straight off disk per matched file (`beetsplug/info.py`'s `tag_data`) instead of the DB (`library_data`) — confirmed against a real ~16k-track library: an empty query silently returns `[]` (the `tag_data` code path only queries the library at all `if query:` — empty args skip it entirely), and a real query matching thousands of items takes minutes instead of seconds, since every match gets its audio file individually opened and parsed. `scripts/library_snapshot.py`'s `run_export` always adds `-l` for the non-album case for exactly this reason — don't build a raw `beet export` call for items without it.
 
 `beet list -f '$field1 $field2' <query>` also works for quick human-readable text, but has **no escaping** — a field value containing a space breaks naive whitespace-splitting. Don't parse `-f` text output programmatically; use `export` instead.
 
@@ -50,11 +51,15 @@ beet export [-l | -a] [-i key1,key2,...] [-f json|jsonlines|csv|xml] [-o file] [
 
 ## Zero-extra-dependency plugins usable in v1
 
-Checked against `beets/pyproject.toml`'s `[project.optional-dependencies]` — none of these require an extra:
+Checked against the installed beets package's `Provides-Extra` metadata (`python3 -c "import importlib.metadata as m; print(m.metadata('beets').get_all('Provides-Extra'))"`) — none of these require an extra:
 
-`export`, `info`, `types`, `missing`, `duplicates`, `unimported`, `limit`, `smartplaylist`, `mbsync`, `fromfilename`, `inline`, `edit`, `hook`.
+`export`, `info`, `types`, `missing`, `duplicates`, `unimported`, `limit`, `smartplaylist`, `mbsync`, `fromfilename`, `inline`, `edit`, `hook`, `ftintitle`, `substitute`.
 
-Anything else needs reinstalling beets with the relevant pip extra (e.g. `pipx install --force "beets[fetchart,lastgenre]"`). `fetchart` and `lastgenre` are used by `music-curate` (opt-in, not in the base plugin list — see `docs/SETUP.md`); `lyrics`, `chroma`, `discogs`, etc. aren't used by any MusicOS skill (`lyrics` deliberately excluded, see `docs/ROADMAP.md`).
+Two with caveats worth knowing before assuming "zero-dependency" means "zero setup":
+- **`scrub`** — does have a declared `scrub` extra (`mutagen>=1.33`), but that dependency is already satisfied transitively by beets' own core `mediafile` dependency, so it works without installing the extra.
+- **`convert`** — no pip extra at all, but needs the external `ffmpeg` binary on `PATH` (not installed by beets or MusicOS). Same shape as `chroma` below (pip extra *and* an external binary), just missing the pip half.
+
+Anything else needs reinstalling beets with the relevant pip extra (e.g. `pipx install --force "beets[fetchart,lastgenre]"`). `fetchart` and `lastgenre` are used by `music-curate` (opt-in, not in the base plugin list — see `docs/SETUP.md`); `lyrics`, `chroma`, `discogs`, `titlecase`, etc. aren't used by any MusicOS skill (`lyrics` deliberately excluded, see `docs/ROADMAP.md`). Note `discogs` and `titlecase` are beets' own bundled extras (like `fetchart`/`lastgenre`), not third-party plugins — `chroma` additionally needs the external `fpcalc` binary (`brew install chromaprint`) on top of its `pyacoustid` pip extra.
 
 ## Commands the skills rely on
 
@@ -73,7 +78,7 @@ Anything else needs reinstalling beets with the relevant pip extra (e.g. `pipx i
 | `beet stats <query>` | `music-query` | Aggregate counts/sizes |
 | `beet fields` | `music-query` | Lists all known fields, including flex attributes in use |
 | `beet modify -W <query> field=value` | `music-organize` (optional) | `-W` is **mandatory** unless you intend to rewrite the audio file's embedded tags too (`beets/ui/commands/modify.py:162`) |
-| `beet fetchart [-f] [-q] <query>` | `music-curate` | Needs the `fetchart` extra; `-f`/`--force` re-fetches existing art, writes a sibling `cover.jpg` (not embedded) |
+| `beet fetchart [-f] [-q] <query>` | `music-curate` | Needs the `fetchart` extra; `-f`/`--force` re-fetches existing art, writes a sibling `cover.jpg` (not embedded). A manually-placed `cover.jpg`/`folder.jpg` in the album folder is only picked up if `filesystem` is in `fetchart.sources` (`config.yaml`) — it's not a beets default you get for free just by enabling the plugin, and beets' own shipped default list puts `filesystem` first, before any network source. Local matching is name-based only (`cover`/`front`/`art`/`album`/`folder`, via `cover_names`), not "any image in the folder" |
 | `beet lastgenre [-A] [-p] <query>` | `music-curate` | Needs the `lastgenre` extra; `-A` = per-track not per-album, `-p`/`--pretend` previews; overwriting existing genres is a `force:` config option, not a CLI flag |
 | `beet splupdate [name.m3u ...]` | `music-playlist` | Regenerates playlists from `smartplaylist.playlists`; `--pretend` previews, zero extra dependencies |
 | `beet config --path` | `music-setup` | Prints the path of the currently active config.yaml — the key existing-library detection command |
@@ -86,5 +91,5 @@ These are flagged, not assumed resolved — re-check once `docs/SETUP.md` has be
 1. Whether `beet import`'s interactive TUI degrades gracefully or hangs under a non-TTY session.
 2. If you switch to the optional `$albumartist_sort`/`$artist_sort` variant (see `docs/LIBRARY-LAYOUT.md`), whether those fields are reliably populated for this specific collection — not a concern with the default plain-`$albumartist` scheme.
 3. Exact JSON shapes for `comp`/`genres`/`added`/`length` from a real `beet export -a -f json` run.
-4. Whether `beet export` on an empty/no-match query returns `[]` cleanly vs. a non-zero exit.
+4. ~~Whether `beet export` on an empty/no-match query returns `[]` cleanly vs. a non-zero exit.~~ Resolved: exit is always `0`; an empty query returns `[]` cleanly for albums (`-a`, or any `-l` export) but see the `-l` gotcha above for the items-without-`-l` trap, which looks like the same symptom but for a different reason.
 5. Windows console encoding for non-ASCII artist names, and whether `path:` queries handle backslash separators.

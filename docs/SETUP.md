@@ -26,10 +26,26 @@ setx BEETSDIR "<path-to-your-musicos-clone>\beetsdir"
 ```
 `setx` is user-scoped and **requires a new shell/terminal** to take effect — check `$env:BEETSDIR` in a fresh window before assuming it's set.
 
-**macOS/Linux (bash/zsh):** add to `~/.bashrc`, `~/.zshrc`, or equivalent, then open a new shell (or `source` the file):
+**macOS/Linux (bash/zsh):** add the export below, then open a new shell (or `source` the file):
 ```sh
 export BEETSDIR="<path-to-your-musicos-clone>/beetsdir"
 ```
+- **zsh:** `~/.zshrc`.
+- **bash on macOS:** `~/.bash_profile` — Terminal.app launches bash as a *login* shell, and login shells don't read `~/.bashrc` unless `.bash_profile` explicitly sources it. Putting the export in `~/.bashrc` alone will silently not take effect.
+- **bash on Linux:** `~/.bashrc` (interactive non-login shells) — add it to `~/.bash_profile`/`~/.profile` too if you also use login shells.
+
+**If you installed beets into a manual venv instead of via `pipx`/`uv tool`** (which auto-register `beet` on `PATH`), also symlink the binary into a directory that's unconditionally on `PATH`, e.g.:
+```sh
+ln -s <path-to-your-musicos-clone>/beetsdir/venv/bin/beet /usr/local/bin/beet
+```
+
+**Non-interactive/non-login shells (cron, CI, automation tools like Claude Code's Bash tool) never source `~/.bash_profile`/`~/.bashrc`/`~/.zshrc` at all** — any `export` in those files (`BEETSDIR`, `PATH`, `SSL_CERT_FILE`, below) is invisible to them. Symlinking `beet` onto an already-on-`PATH` directory (above) fixes resolution; `BEETSDIR` and `SSL_CERT_FILE` have no equivalent workaround, so such tools must pass them explicitly per-invocation, e.g. `BEETSDIR=... SSL_CERT_FILE=... beet ...`, rather than assuming the profile export applies.
+
+**macOS Python-framework venvs may need `SSL_CERT_FILE` set explicitly.** These builds don't verify TLS against the OS trust store, so network-dependent plugins that use their own SSL context rather than `requests` (`musicbrainz`/`musicbrainzngs`, and `lastgenre`'s Last.fm lookups via `pylast`) fail with `CERTIFICATE_VERIFY_FAILED` — or, worse, **fail silently and just look like "no match found."** If MusicBrainz matches or Last.fm genres seem suspiciously absent, run with `-vv` and check for this before assuming there's really no match:
+```sh
+export SSL_CERT_FILE="<path-to-your-musicos-clone>/beetsdir/venv/lib/python3.13/site-packages/certifi/cacert.pem"
+```
+(adjust the Python version in the path to match your venv). `requests`-based plugins bundle their own `certifi` bundle and aren't affected.
 
 ## 3. Turn the config template into a real config
 
@@ -37,14 +53,14 @@ Copy `beetsdir/config.example.yaml` to `beetsdir/config.yaml` and fill in:
 
 - **`directory:`** — the external folder where music files actually live. **Never point this inside `MusicOS/`.** Choose deliberately — consider available disk space if this is a large collection.
 - **`library:`** — usually fine left as the default `library.db`, which resolves inside `BEETSDIR`.
-- **`paths:`** — already set up for single-letter artist folders plus `#/`, `Various Artists/`, and `Soundtracks/`. See `docs/LIBRARY-LAYOUT.md` for how it works and what to change if you want a different scheme — much cheaper to change now than after files exist under the old one.
+- **`paths:`** — already set up for single-letter artist folders (via a computed `$initial` field, so digit/symbol-leading and "The"/"A"/"El"/"La"-prefixed artists bucket correctly) plus `#/`, `Various Artists/`, and `Soundtracks/`. See `docs/LIBRARY-LAYOUT.md` for how it works and what to change if you want a different scheme — much cheaper to change now than after files exist under the old one.
 
 ## 4. Enable plugins
 
 Only enable what's needed for v1 — all zero extra pip dependencies (see `docs/BEETS-CHEATSHEET.md` for the full verified list):
 
 ```yaml
-plugins: export types missing duplicates unimported limit musicbrainz
+plugins: export types missing duplicates unimported limit musicbrainz mbsync smartplaylist inline
 ```
 
 Also pin these for reliable machine-parseable exports (see the export-formatting gotchas in `docs/BEETS-CHEATSHEET.md`):
