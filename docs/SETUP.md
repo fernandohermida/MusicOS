@@ -1,6 +1,6 @@
 # Setup guide
 
-Nothing is installed or configured yet. This is the checklist for standing up a real, working MusicOS — whenever you're ready, not before. The `music-setup` skill can drive most of this interactively; this document is the reference for what it's doing and why.
+This is the checklist for standing up a working MusicOS from scratch. There's no setup skill to drive this interactively; follow this checklist by hand (or have an agent follow it step by step, reading and editing `beetsdir/config.yaml` directly, same as any other file in the repo).
 
 **Already have a beets library — your own `config.yaml`, `library.db`, and an already-organized collection?** Skip to [Adopting an existing beets library](#adopting-an-existing-beets-library) near the end instead of starting from step 1 — none of your existing config, database, or music files need to move.
 
@@ -15,6 +15,10 @@ MusicOS doesn't vendor or fork beets — it depends on it purely as an installed
 If you want to hack on beets itself or track its `master` branch, clone `github.com/beetbox/beets` **somewhere outside this repo** and follow beets' own `CONTRIBUTING.rst` (`uv sync` + `uv run beet`) — that's a separate concern from running MusicOS against a released version.
 
 Entry point is `beets.ui:main`; `python -m beets` also works as a fallback with any of the above.
+
+**Verified beets version: 2.14.1** (Python 3.13). The beets source file:line references in `docs/BEETS-CHEATSHEET.md` and `docs/LIBRARY-LAYOUT.md` were checked against this release — re-check them after upgrading. Upgrade in place with `pipx upgrade beets` (or `pip install -U "beets[fetchart,lastgenre,embedart,chroma]"` inside a manual venv), and back up `library.db` first — a new release can migrate the database schema.
+
+**Don't enable the `limit` plugin.** It's deprecated as of beets 2.14 (removed in 3.0.0) and prints a warning on every `beet` command; use the built-in `beet ls -l <number>` instead.
 
 ## 2. Set `BEETSDIR`
 
@@ -47,20 +51,20 @@ export SSL_CERT_FILE="<path-to-your-musicos-clone>/beetsdir/venv/lib/python3.13/
 ```
 (adjust the Python version in the path to match your venv). `requests`-based plugins bundle their own `certifi` bundle and aren't affected.
 
-## 3. Turn the config template into a real config
+## 3. Write a real config
 
-Copy `beetsdir/config.example.yaml` to `beetsdir/config.yaml` and fill in:
+**There is no packaged config template in this repo right now** — build `beetsdir/config.yaml` by hand, following this walkthrough. At minimum, set:
 
 - **`directory:`** — the external folder where music files actually live. **Never point this inside `MusicOS/`.** Choose deliberately — consider available disk space if this is a large collection.
 - **`library:`** — usually fine left as the default `library.db`, which resolves inside `BEETSDIR`.
-- **`paths:`** — already set up for single-letter artist folders (via a computed `$initial` field, so digit/symbol-leading and "The"/"A"/"El"/"La"-prefixed artists bucket correctly) plus `#/`, `Various Artists/`, and `Soundtracks/`. See `docs/LIBRARY-LAYOUT.md` for how it works and what to change if you want a different scheme — much cheaper to change now than after files exist under the old one.
+- **`paths:`** — see `docs/LIBRARY-LAYOUT.md` for the full recommended `paths:`/`item_fields:` block (single-letter artist folders via a computed `$initial` field, so digit/symbol-leading and "The"/"A"/"El"/"La"-prefixed artists bucket correctly, plus `#/`, `Various Artists/`, and `Soundtracks/`) and what to change if you want a different scheme — much cheaper to change now than after files exist under the old one. That doc also covers `asciify_paths`/`per_disc_numbering`, two more settings worth deciding on at the same time since they affect what actually lands on disk.
 
 ## 4. Enable plugins
 
-Only enable what's needed for v1 — all zero extra pip dependencies (see `docs/BEETS-CHEATSHEET.md` for the full verified list):
+Start with the zero-extra-dependency v1 set (see `docs/BEETS-CHEATSHEET.md` for the full verified list, including which of these are confirmed actually running on a real library vs. still-unverified candidates):
 
 ```yaml
-plugins: export types missing duplicates unimported limit musicbrainz mbsync smartplaylist inline
+plugins: export types missing duplicates unimported musicbrainz mbsync inline edit fromfilename ftintitle scrub info
 ```
 
 Also pin these for reliable machine-parseable exports (see the export-formatting gotchas in `docs/BEETS-CHEATSHEET.md`):
@@ -70,7 +74,7 @@ time_format: '%Y-%m-%d %H:%M:%S'
 format_raw_length: yes
 ```
 
-Extras (`fetchart`, `lastgenre`, etc.) can be added later by reinstalling beets with the relevant extra — e.g. `pipx install --force "beets[fetchart,lastgenre]"` (or the equivalent `pip install`/`uv tool install` form for whichever method you used in step 1) — deferred per `docs/ROADMAP.md`.
+Extras (`fetchart`, `lastgenre`, `embedart`, `chroma`, `replaygain`, `badfiles`, etc. — see `docs/BEETS-CHEATSHEET.md`'s "What's actually running" and "Other candidate plugins" sections) can be added later by reinstalling beets with the relevant extra — e.g. `pipx install --force "beets[fetchart,lastgenre]"` (or the equivalent `pip install`/`uv tool install` form for whichever method you used in step 1). If you're tempted to add a second autotagger source (`discogs`, `deezer`, `spotify`) alongside `musicbrainz`, read `docs/BEETS-CHEATSHEET.md`'s "Autotagger sources: MusicBrainz only" section first — it can silently break `mbsync`.
 
 ## 5. MusicBrainz awareness for a large first import
 
@@ -79,7 +83,7 @@ If importing a big existing collection at once, be aware of MusicBrainz's public
 ## 6. First import
 
 1. `beet import --pretend <path>` — dry run, review what it proposes.
-2. Real import, assisted mode: run the composed command yourself in your own terminal (see `music-ingest` skill — beets' match-selection prompt is an interactive TUI, best driven directly rather than through an agent's piped session).
+2. Real import, unattended: `beet import -q --quiet-fallback skip <path>`. With `quiet_fallback: skip` and `duplicate_action: upgrade` (or `skip`) set in `config.yaml` (per step 3), this never opens an interactive prompt — it's safe to run directly, including from an agent's non-interactive session. Albums with no strong match are skipped rather than guessed at; albums that duplicate something already in the library replace the old tracks only where the new ones have a higher bitrate (the old files are deleted), otherwise they're skipped; see `music-ingest`'s skip-log review step for how to see what got skipped, and its `-t`/timid manual-review fallback (genuinely interactive, run in your own terminal) for resolving specific ones by hand.
 3. Run `music-organize` to confirm placement and check for gaps.
 
 ## 7. `library.db` backup
@@ -92,7 +96,7 @@ If importing a big existing collection at once, be aware of MusicBrainz's public
 - `beet move --pretend` (even against zero items) runs without error.
 - `beet stats` returns a (possibly empty) report.
 
-If any of these fail, see `music-setup`'s diagnosis steps.
+If any of these fail, re-check `BEETSDIR` (step 2) and the `config.yaml` you wrote in step 3 — `beet -vv version` will usually show which config file it actually loaded and why a plugin failed to start.
 
 ## Adopting an existing beets library
 
@@ -117,7 +121,7 @@ Either way, **your actual music files never need to move**, and neither does `di
 
 ### Add what MusicOS needs, without touching what you already have
 
-MusicOS's skills need a few plugins your existing config might not enable yet: `export` (structured output for `music-query`/`music-lint`), `types`, `unimported`, `limit`, and optionally `smartplaylist` (only if you want `music-playlist`). **Append these to your existing `plugins:` line — don't replace it, and don't add them via a second `--config` overlay file.** Beets' config layering doesn't reliably merge list-valued options like `plugins:` across multiple files — a higher-priority source can simply take over that key rather than combining with a lower-priority one — so the only way to guarantee none of your existing plugins get silently dropped is a direct, one-line edit to your own `config.yaml`.
+MusicOS's skills need a few plugins your existing config might not enable yet: `export` (structured output for `music-query`/`music-lint`), `types`, and `unimported`. **Append these to your existing `plugins:` line — don't replace it, and don't add them via a second `--config` overlay file.** Beets' config layering doesn't reliably merge list-valued options like `plugins:` across multiple files — a higher-priority source can simply take over that key rather than combining with a lower-priority one — so the only way to guarantee none of your existing plugins get silently dropped is a direct, one-line edit to your own `config.yaml`.
 
 **You do not need to adopt MusicOS's `paths:` scheme** (the single-letter/`#`/`Various Artists`/`Soundtracks` layout from `docs/LIBRARY-LAYOUT.md`). If you're happy with your current organization, leave your existing `paths:` config exactly as it is — `music-organize`'s placement checks just compare against whatever `paths:` is currently configured, whatever that happens to be.
 

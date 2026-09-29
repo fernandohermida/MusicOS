@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000">
+<title>Album Wall</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+  body.idle { cursor: none; }
+
+  /* Covers per row at each screen width -- the same breakpoints as Bootstrap's grid. */
+  :root { --cols: 3; }                                  /* phones */
+  @media (min-width: 576px)  { :root { --cols: 4; } }   /* sm: large phones */
+  @media (min-width: 768px)  { :root { --cols: 5; } }   /* md: tablets */
+  @media (min-width: 992px)  { :root { --cols: 6; } }   /* lg: laptops */
+  @media (min-width: 1400px) { :root { --cols: 7; } }   /* xxl: desktops */
+
+  #wall {
+    position: fixed; inset: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: 2px;
+    align-content: center;   /* rows that don't fit are cropped evenly top and bottom */
+  }
+  .cell { position: relative; aspect-ratio: 1; perspective: 800px; }
+  .card { position: absolute; inset: 0; transform-style: preserve-3d; }
+  .face {
+    position: absolute; inset: 0;
+    background: #111 center / cover no-repeat;
+    backface-visibility: hidden;
+  }
+  .face + .face { transform: rotateY(180deg); }  /* back face starts turned away */
+  #msg { color: #777; font: 14px sans-serif; text-align: center; margin-top: 45vh; }
+</style>
+</head>
+<body>
+<div id="wall"></div>
+
+<script src="albums.js"></script>
+<script>
+/* Animation settings; covers per row are set by the breakpoints in the CSS above.
+   Each one can also be overridden in the URL, e.g. index.html?duration=2500 */
+const CONFIG = {
+  duration: 1800,        // ms for one flip
+  interval: 30000,       // average ms between flips of any one cover (smaller screens flip less often overall)
+  maxFlipping: 6,        // most covers flipping at the same time
+  verticalChance: 0.3,   // share of flips around the horizontal axis (top-over-bottom)
+
+  randomness: 0.6,       // 0 = steady and uniform, 1 = very irregular timing, speed and angle
+  intensity: 1,          // how far a cover lifts toward you mid-flip
+};
+
+for (const [key, value] of new URLSearchParams(location.search)) {
+  if (key in CONFIG) CONFIG[key] = isNaN(value) ? value : Number(value);
+}
+
+const ALBUMS = window.ALBUMS || [];
+const wall = document.getElementById('wall');
+const onScreen = new Set();
+let cells = [];
+let deck = [];
+let paused = false;
+
+const rand = (a, b) => a + Math.random() * (b - a);
+// Scales v by a random factor that widens with the randomness setting.
+const vary = (v, spread = 0.4) => v * (1 + rand(-1, 1) * spread * CONFIG.randomness);
+
+/** Next album from a shuffled deck, so the whole collection cycles before repeating. */
+function nextAlbum() {
+  for (let i = 0; i < ALBUMS.length; i++) {
+    if (!deck.length) deck = ALBUMS.slice().sort(() => Math.random() - 0.5);
+    const album = deck.pop();
+    if (!onScreen.has(album)) return album;
+  }
+  return ALBUMS[Math.floor(Math.random() * ALBUMS.length)];
+}
+
+function preload(album) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = img.onerror = resolve;
+    img.src = album.cover;
+  });
+}
+
+/** Adds or removes cells until the screen is covered; covers already showing stay put. */
+function fill() {
+  const cols = parseInt(getComputedStyle(wall).getPropertyValue('--cols'));
+  const count = cols * Math.ceil(innerHeight / (innerWidth / cols));
+  while (cells.length < count) {
+    const el = document.createElement('div');
+    el.className = 'cell';
+    el.innerHTML = '<div class="card"><div class="face"></div><div class="face"></div></div>';
+    wall.appendChild(el);
+    const [front, back] = el.querySelectorAll('.face');
+    const cell = { el, card: el.firstChild, front, back, album: nextAlbum(), busy: false, last: 0 };
+    front.style.backgroundImage = `url("${cell.album.cover}")`;
+    onScreen.add(cell.album);
+    cells.push(cell);
+  }
+  while (cells.length > count) {
+    const cell = cells.pop();
+    cell.el.remove();
+    onScreen.delete(cell.album);
+  }
+}
+
+async function flip(cell) {
+  cell.busy = true;
+  const album = nextAlbum();
+  onScreen.add(album);
+  await preload(album);
+
+  // Flip axis in the screen plane: vertical (a sideways flip) or horizontal,
+  // tilted off-true by a few degrees depending on randomness.
+  const base = Math.random() < CONFIG.verticalChance ? 0 : 90;
+  const angle = (base + rand(-12, 12) * CONFIG.randomness) * Math.PI / 180;
+  const axis = `${Math.cos(angle).toFixed(3)}, ${Math.sin(angle).toFixed(3)}, 0`;
+  const turn = Math.random() < 0.5 ? 180 : -180;
+  const lift = cell.el.offsetWidth * 0.2 * CONFIG.intensity;
+
+  // A 180° turn about any in-plane axis is its own inverse, so this back face
+  // lands upright when the card finishes turning.
+  cell.back.style.transform = `rotate3d(${axis}, 180deg)`;
+  cell.back.style.backgroundImage = `url("${album.cover}")`;
+  cell.el.style.zIndex = 1;
+
+  const flipAnim = cell.card.animate([
+    { transform: `translateZ(0) rotate3d(${axis}, 0deg)` },
+    { transform: `translateZ(${lift}px) rotate3d(${axis}, ${turn / 2}deg)` },
+    { transform: `translateZ(0) rotate3d(${axis}, ${turn}deg)` },
+  ], {
+    duration: vary(CONFIG.duration),
+    easing: 'cubic-bezier(.45, .05, .3, 1)',
+    fill: 'forwards',
+  });
+  await flipAnim.finished;
+  if (!cells.includes(cell)) return;  // cell was removed mid-flip (resize, rotation)
+
+  // Put the new cover on the front and reset the card, all in one frame.
+  cell.front.style.backgroundImage = cell.back.style.backgroundImage;
+  flipAnim.cancel();
+  cell.el.style.zIndex = '';
+  onScreen.delete(cell.album);
+  cell.album = album;
+  cell.busy = false;
+  cell.last = performance.now();
+}
+
+function tick() {
+  // Mix a steady beat with a random (exponential) gap: randomness 0 is a metronome.
+  const r = CONFIG.randomness;
+  const gapFactor = (1 - r) + r * -Math.log(1 - Math.random());
+  setTimeout(tick, CONFIG.interval / cells.length * Math.min(gapFactor, 4));
+
+  if (paused || document.hidden) return;
+  const idle = cells.filter(c => !c.busy);
+  if (cells.length - idle.length >= CONFIG.maxFlipping || !idle.length) return;
+
+  // Of a few random candidates, flip the one left alone longest, so the whole
+  // wall keeps moving without any visible order.
+  const candidates = Array.from({ length: 3 }, () => idle[Math.floor(Math.random() * idle.length)]);
+  flip(candidates.reduce((a, b) => (a.last <= b.last ? a : b)));
+}
+
+if (!ALBUMS.length) {
+  document.body.innerHTML = '<p id="msg">No albums yet. Run <code>python scripts/build_wall.py</code>.</p>';
+} else {
+  fill();
+  addEventListener('resize', fill);
+  setTimeout(tick, 1000);
+}
+
+addEventListener('keydown', e => {
+  if (e.key === ' ') paused = !paused;
+  if (e.key === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+});
+
+let idleTimer;
+addEventListener('mousemove', () => {
+  document.body.classList.remove('idle');
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => document.body.classList.add('idle'), 2000);
+});
+</script>
+</body>
+</html>

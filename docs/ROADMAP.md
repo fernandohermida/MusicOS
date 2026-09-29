@@ -13,3 +13,7 @@ Web-lookup-backed answers (beyond what's in the library/MusicBrainz) were consid
 ## Auto-triggered organize on import
 
 Beets has a plugin event system (`item_imported`/`album_imported`/`cli_exit`, or the zero-code `hook` plugin — see `beets/plugins.py` in the beets source) that could auto-run `music-organize`-equivalent logic every time `beet import` runs, without an explicit skill invocation. Deferred because it requires either new plugin code or the `hook` plugin wired to a script — a step up in complexity from "Claude skills shelling out to stock `beet`," which is the deliberate v1 constraint (see `CLAUDE.md`'s invariants). Revisit only if explicit skill invocation becomes friction in practice.
+
+## Playlists
+
+A `music-playlist` skill (`.m3u` generation from saved queries via the `smartplaylist` plugin) existed briefly and was removed: `smartplaylist` was never enabled on the real library, so the skill couldn't run. If playlists come back, re-add `smartplaylist` to `plugins:` with `auto: no` (keep generation an explicit action) and a `relative_to:` that matches the music player's path expectations.

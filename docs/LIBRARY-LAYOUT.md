@@ -73,6 +73,13 @@ An earlier version of this scheme preferred `$albumartist_sort` (MusicBrainz's s
 
 Unlike the earlier template-based scheme (which only special-cased digit-leading names via a regex query key), `$initial`'s `isalpha()` check routes **any** non-alphabetic leading character — digits, symbols (`!!!`, `3T`-style, etc.) — into the same `#/` bucket, not just digits. There's no longer an unhandled edge case here: everything that isn't a plain letter falls into `#/` by construction, including an artist name that literally starts with the `#` character itself (a genuine, if rare, collision worth knowing about, but not one that needs a workaround).
 
+## Two more config keys that affect what lands on disk
+
+Neither is part of the `paths:`/`item_fields:` mechanism above, but both change the actual folder/file names this scheme produces — worth knowing about even though `beet move --pretend` will show their effect either way:
+
+- **`asciify_paths: yes`** — converts accented/non-ASCII characters to their closest plain-ASCII equivalent in **folder and file names only**; the stored tags (`$albumartist`, etc.) are untouched, same as `$initial`'s article-stripping above. Matters for any collection with accented artist names (e.g. "Ali Farka Touré" → an ASCII-only folder name) — confirmed set to `yes` on a real MusicOS library. Without it, non-ASCII folder names are used as-is, which is also fine but behaves differently across filesystems/tools that don't handle Unicode paths well.
+- **`per_disc_numbering: yes`** — makes beets restart track numbering at 1 on each disc of a multi-disc album, instead of numbering continuously across discs. This is what the `$multidisc`/`%if{$multidisc,$disc-}` prefix in the `paths:` templates above is actually compensating for: without `per_disc_numbering: yes`, disc 2 track 1 might already be track "13", making the `$disc-` prefix redundant instead of necessary. Confirmed set to `yes` on a real MusicOS library, matching the `paths:` scheme's assumption.
+
 ## Changing the scheme later
 
 Changing any of these templates or query keys after files already exist under the old scheme is safe but requires a reorganization pass: `beet move --pretend` will show every file that needs to move under the new config, then `beet move` (via the `music-organize` skill) actually relocates them. Always preview before applying.

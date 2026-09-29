@@ -22,7 +22,9 @@ Not for: fixing what it finds — report only, unless `--fix` is explicitly requ
 | Check | Command | Catches |
 |---|---|---|
 | Placement drift | `beet move --pretend` | Files whose path no longer matches the configured `paths:` template |
-| Duplicates | `beet duplicates` | Duplicate tracks/albums |
+| Duplicate albums | `beet duplicates -a` | Duplicate albums (keys `albumartist, album, year`, case-sensitive) |
+| Case-only duplicate albums | `beet ls -a -f '$albumartist\|$album\|$year' \| tr A-Z a-z \| sort \| uniq -d` | Album rows differing only in case (e.g. bonus tracks split into a second, unmatched album) — `duplicates -a` misses these |
+| Duplicate tracks | `beet duplicates -k mb_trackid -k mb_albumid` | Same recording twice on one album (check format/bitrate — alternate versions can share a recording ID) |
 | Incomplete albums | `beet missing` | Albums missing tracks |
 | Unimported files | `beet unimported` | Files under `directory:` not in the DB at all |
 | Singletons | `beet ls singleton:true` | Tracks with no associated album |
@@ -40,4 +42,6 @@ Not for: fixing what it finds — report only, unless `--fix` is explicitly requ
 
 - Treating `beet duplicates`/`beet missing`/unmatched-import findings as something to silently resolve — they're for the user to decide on.
 - Running `--fix` without having shown the `beet move --pretend` output first.
+- Running plain `beet duplicates` (no `-a`/`-k`). The config's album-level `duplicates.keys` get applied in item mode, flagging every track on every album (~14k false positives).
+- Reading `beet unimported` hits as real gaps. The library drive is case-insensitive (exFAT), so a folder/file whose on-disk case differs from the DB path is the same file but gets flagged. Compare case-insensitively against `beet ls -f '$path'` first; the fix is a case-only rename (via a temp name) to the DB spelling, not an import.
 - Letting `last-health-report.md` accumulate as history instead of overwriting it — it's a current-state snapshot, not a log (the operational log already covers history).

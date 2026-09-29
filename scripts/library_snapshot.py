@@ -90,7 +90,7 @@ def run_export(
     except FileNotFoundError as exc:
         raise RuntimeError(
             "`beet` not found on PATH — is beets installed? "
-            "Run the music-setup skill (or see docs/SETUP.md) first."
+            "See docs/SETUP.md."
         ) from exc
     if result.returncode != 0:
         raise RuntimeError(

@@ -17,7 +17,7 @@ Two ways to use MusicOS, both from this same repo:
 /plugin marketplace add <owner>/musicos
 /plugin install musicos@musicos
 ```
-Skills are then available namespaced, e.g. `musicos:music-setup`.
+Skills are then available namespaced, e.g. `musicos:music-ingest`.
 
 **By cloning this repo directly** and opening it in Claude Code — the skills under `.claude/skills/` auto-load for that project, invoked without the `musicos:` prefix.
 
@@ -25,6 +25,6 @@ Either way, you still need beets installed (see `docs/SETUP.md`) — MusicOS doe
 
 ## Get started
 
-Nothing is configured yet. Start with `docs/SETUP.md`, or just ask Claude Code to run the `music-setup` skill.
+Nothing is configured yet. Start with `docs/SETUP.md` to install beets and write `beetsdir/config.yaml` by hand.
 
 See `CLAUDE.md` for the full architecture and invariants, `docs/ROADMAP.md` for what's intentionally not built yet, and `CONTRIBUTING.md` if you'd like to contribute.

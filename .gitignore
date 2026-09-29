@@ -4,11 +4,11 @@
 
 # BEETSDIR contents: nothing under here is tracked. config.yaml is
 # machine-specific (real directory: paths, and it can carry API keys, e.g.
-# acoustid.apikey) — beetsdir/config.example.yaml at the repo root is the
-# tracked template instead. The DB, logs, and scratch exports are local and
-# can be large.
+# acoustid.apikey) — build it by hand per docs/SETUP.md. The DB, its
+# backups, logs, and scratch exports are local and can be large.
 /beetsdir/library.db
 /beetsdir/library.db-*
+/beetsdir/library.db.bak-*
 /beetsdir/state.pickle
 /beetsdir/logs/
 /beetsdir/exports/
@@ -18,6 +18,11 @@
 # Never accidentally track the music collection itself, in case it's ever
 # nested under MusicOS instead of kept fully external.
 /music/
+
+# Album wall build output (scripts/build_wall.py) -- derived from the
+# library, rebuilt on demand, and ~100MB of cover art.
+/wall/covers/
+/wall/albums.js
 
 # Standard Python/OS noise
 __pycache__/
