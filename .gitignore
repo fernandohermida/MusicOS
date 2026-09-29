@@ -21,8 +21,7 @@
 
 # Album wall build output (scripts/build_wall.py) -- derived from the
 # library, rebuilt on demand, and ~100MB of cover art.
-/wall/covers/
-/wall/albums.js
+
 
 # Standard Python/OS noise
 __pycache__/
