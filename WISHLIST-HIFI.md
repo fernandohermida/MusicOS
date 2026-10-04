@@ -2,10 +2,10 @@
 
 ## 1. The records that keep coming back
 
-* [ ] **01. Steely Dan — Aja (1977)**
+* [*] **01. Steely Dan — Aja (1977)**
   *Extremely precise studio production; great for imaging, separation, drums, bass and tiny details in dense arrangements.*
 
-* [ ] **02. Pink Floyd — The Dark Side of the Moon (1973)**
+* [*] **02. Pink Floyd — The Dark Side of the Moon (1973)**
   *Huge soundstage, deep bass, stereo effects, ambience and dynamic changes make it an excellent all-round system test.*
 
 * [*] **03. Daft Punk — Random Access Memories (2013)**
@@ -136,7 +136,7 @@
 * [ ] **42. Ella Fitzgerald & Louis Armstrong — Ella and Louis (1956)**
   *Beautifully realistic vocal recording with distinct vocal textures and believable room positioning.*
 
-* [ ] **43. Stan Getz & João Gilberto — Getz/Gilberto (1964)**
+* [*] **43. Stan Getz & João Gilberto — Getz/Gilberto (1964)**
   *Intimate bossa nova recording with saxophone, vocals, guitar and percussion; excellent for natural tone and subtle detail.*
 
 * [ ] **44. Jimmy Smith — Back at the Chicken Shack (1960)**

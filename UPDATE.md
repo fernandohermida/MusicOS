@@ -239,7 +239,6 @@ From my library, checked 2026-09-29. Everything here is currently MP3/AAC/WMA.
 - [ ] The Verve — Urban Hymns
 - [ ] The Wailers — Burnin’ (1973)
 - [ ] The Wailers — Catch a Fire (1973)
-- [ ] The Wynton Kelly Trio / Wes Montgomery — Smokin' At The Half Note (2013)
 - [ ] Thelonious Monk with John Coltrane — Thelonious Monk with John Coltrane (2000)
 - [ ] Thievery Corporation — The Mirror Conspiracy (2000)
 - [ ] Thom Yorke — The Eraser (2006)
@@ -253,6 +252,7 @@ From my library, checked 2026-09-29. Everything here is currently MP3/AAC/WMA.
 - [ ] Tricky — Maxinquaye (1995)
 - [ ] UNKLE — Psyence Fiction (1999)
 - [ ] Vieux Farka Touré & Khruangbin — Ali (2022)
-- [ ] Wes Montgomery — Full House (1987)
 - [ ] Yann Tiersen — Amélie (2001)
 - [ ] Yes — Fragile (2003)
+
+

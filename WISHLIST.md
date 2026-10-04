@@ -2,7 +2,7 @@
 
 Albums to download and add to the library.
 
-`*` = already in the collection (format in brackets; checked against the beets library 2026-09-28). Nothing on the FLAC list is currently held in FLAC — every `*` entry there is MP3, so it's still an upgrade candidate.
+`*` = already in the collection (format in brackets; checked against the beets library 2026-09-28). On the FLAC list, `*` entries are MP3 upgrade candidates; albums already held in FLAC have been removed (checked 2026-10-02).
 
 
 
@@ -13,7 +13,6 @@ Albums to download and add to the library.
 | 4 | Azymuth | Partido Novo | 18.8 | 195 |
 | 6 | Wes Montgomery | Groove Brothers | 11.5 | 172 |
 | 7 | Grant Green | \* Blue Break Beats _(have: "Blue Breakbeats", MP3)_ | 11.2 | 229 |
-| 8 | Wes Montgomery | \* Smokin' At The Half Note _(have: as The Wynton Kelly Trio / Wes Montgomery, MP3)_ | 10.8 | 97 |
 | 9 | Azymuth | Fênix | 10.1 | 178 |
 | 10 | Dizzy Gillespie | Free Ride | 9.7 | 226 |
 | 11 | Gustavo Santaolalla | Ronroco | 9.7 | 226 |
@@ -21,11 +20,10 @@ Albums to download and add to the library.
 * | 13 | Charlie Hunter | Natty Dread | 9.3 | 193 |
 | 15 | Tommy Guerrero | Road to Knowhere | 8.2 | 195 |
 | 16 | Charlie Rouse | A Bossa Dos Cariocas / Takin' Care of Business (1962/1960) | 8.0 | 141 |
-| 17 | Charlie Hunter | Baboon Strength | 7.8 | 217 |
+* | 17 | Charlie Hunter | Baboon Strength | 7.8 | 217 |
 * | 19 | Thievery Corporation | Culture of Fear | 7.3 | 220 |
 | 20 | Bill Evans Trio | Explorations | 7.2 | 99 |
 * | 22 | Khruangbin | Con Todo El Mundo | 7.0 | 146 |
-* | 23 | Antibalas | Talkatif | 6.8 | 176 |
 
 ## Group B — top 100 artists completely absent from your collection (by total listening hours, all-time)
 
@@ -46,7 +44,7 @@ Albums to download and add to the library.
 | 23 | Lord Echo | 14.3 | 266 | 7 |
 | 24 | Takuya Kuroda | 14.1 | 199 | 9 |
 | 25 | Desmond Cheese | 13.7 | 266 | 8 |
-| 26 | Hermanos Gutiérrez | 12.8 | 403 | 19 |
+* | 26 | Hermanos Gutiérrez | 12.8 | 403 | 19 |
 | 27 | The Jazz Jousters | 12.3 | 341 | 9 |
 * | 28 | Ike Quebec | 12.2 | 246 | 3 |
 | 29 | The Smile | 11.7 | 210 | 8 |
@@ -65,7 +63,7 @@ Albums to download and add to the library.
 * | 42 | Ekathé | 9.3 | 173 | 3 |
 | 43 | Orgone | 9.3 | 199 | 14 |
 | 44 | Ernesto Méndez | 9.2 | 231 | 4 |
-| 45 | Jorge Cardoso | 9.1 | 257 | 7 |
+* | 45 | Jorge Cardoso | 9.1 | 257 | 7 |
 | 46 | Novos Baianos | 9.1 | 219 | 9 |
 | 47 | The New Mastersounds | 9.0 | 225 | 19 |
 | 48 | Smokedbeat | 9.0 | 255 | 6 |
@@ -79,7 +77,6 @@ Albums to download and add to the library.
 | 57 | Kerbside Collection | 7.8 | 203 | 3 |
 | 58 | Toro y Moi | 7.8 | 232 | 12 |
 | 59 | Greyboy | 7.8 | 144 | 6 |
-| 60 | Barney Kessel | 7.7 | 136 | 18 |
 | 61 | Javier Malosetti | 7.7 | 170 | 5 |
 | 62 | Gee Mack | 7.6 | 105 | 1 |
 | 63 | Billy Cobham | 7.5 | 124 | 8 |
@@ -121,32 +118,73 @@ Albums to download and add to the library.
 FLAC FORMAT ALBUM TO DOWNLOAD
 ======================================
 
-* Stan Getz & João Gilberto – Getz/Gilberto
-* Dave Brubeck Quartet – Time Out. - superb acoustic jazz recording with piano, sax, bass and drums clearly separated. Excellent for natural timbre and transient attack.
-Charles Mingus – Mingus Ah Um
-Stan Getz & Charlie Byrd – Jazz Samba
-* Al Di Meola, John McLaughlin & Paco de Lucía – Friday Night in San Francisco
-* Joe Pass – Virtuoso
-Bill Evans – Everybody Digs Bill Evans
-Thelonious Monk – Solo Monk
-Art Blakey & The Jazz Messengers – Moanin'
-Wayne Shorter – Speak No Evil
-Arne Domnérus – Jazz at the Pawnshop
-John Coltrane – A Love Supreme
-Jazz at the Pawnshop – Vol. 1
-Oscar Peterson – Night Train
-Thelonious Monk – Brilliant Corners
-Thelonious Monk – Straight, No Chaser
-Cannonball Adderley – Somethin' Else
-Miles Davis – Sketches of Spain
-Sonny Rollins – Way Out West
-Duke Ellington / Charles Mingus / Max Roach – Money Jungle
-Herbie Hancock – Maiden Voyage
-Miles Davis – In a Silent Way
-Miles Davis – Bitches Brew
+Ordered by priority: musical importance + recording quality + fit with your taste (jazz-blues, soul-jazz, sax/guitar/Hammond). Download top-down.
 
+### Tier 1 — Must have
+
+* 3. Hank Mobley – Soul Station - target: 2013 24/192
+4. John Coltrane – Blue Train [MP3] - target: 2012 24/192
+5. Art Blakey & The Jazz Messengers – Moanin' - target: 2013 24/192; dynamics test
+6. Sonny Clark – Cool Struttin' - target: 2014 24/192
+7. Jimmy Smith – Back at the Chicken Shack - target: 2013 24/192
+8. Ike Quebec – Blue & Sentimental - target: 2007 RVG 24/192
+9. Horace Silver – Song for My Father - target: 2012 24/192
+10. Art Pepper – Art Pepper Meets the Rhythm Section - target: 24/192 Craft
+11. Charles Mingus – Mingus Ah Um
+12. Sonny Rollins – Way Out West - target: 24/192
+
+### Tier 2 — Essential
+
+14. Sonny Rollins – Saxophone Colossus - target: RVG / 24-bit (2024 24/96 restoration also exists)
+15. Lee Morgan – The Sidewinder - target: 2012 24/192
+16. Dexter Gordon – One Flight Up - target: 2015 24/96
+18. Lou Donaldson – Blues Walk - target: best CD/FLAC master (16/44.1 on Qobuz)
+* 19. Wayne Shorter – Speak No Evil
+20. Herbie Hancock – Maiden Voyage
+21. Cannonball Adderley – Know What I Mean? - target: 2024 24/192
+22. Bill Evans – Everybody Digs Bill Evans
+23. Arne Domnérus – Jazz at the Pawnshop (Vol. 1) - audiophile reference recording
+24. Miles Davis – Sketches of Spain
+25. Oscar Peterson – Night Train
+26. Thelonious Monk – Brilliant Corners
+* 27. Stan Getz & Charlie Byrd – Jazz Samba
+28. Duke Ellington / Charles Mingus / Max Roach – Money Jungle
+29. Miles Davis – In a Silent Way
+
+### Tier 3 — Strong additions
+
+30. Jimmy Smith – Prayer Meetin' - target: Blue Note 24-bit
+31. Dexter Gordon – Dexter Calling... - target: 2015 24/96
+* 32. Grant Green – Matador - target: Blue Note 24-bit
+33. Hank Mobley – Dippin' - target: best Blue Note digital master
+34. Kenny Dorham – Quiet Kenny - target: high-res Blue Note/Craft
+35. Art Blakey & The Jazz Messengers – Free for All - target: high-res Blue Note
+36. Milt Jackson & Wes Montgomery – Bags Meets Wes! - target: high-res Verve
+37. Chet Baker – Chet - target: high-res Craft
+38. Lou Donaldson – Light-Foot - target: 24/192
+39. Freddie Hubbard – Hub Cap - target: Blue Note 24-bit
+40. Stanley Turrentine – Hustlin' - target: Blue Note 24-bit
+41. Horace Parlan – Speakin' My Piece - target: Blue Note 24-bit
+42. Thelonious Monk – Solo Monk
+43. Thelonious Monk – Straight, No Chaser
+44. Miles Davis – Bitches Brew
+
+### Tier 4 — Guitar
+
+46. Wes Montgomery – Full House [MP3] - also in UPDATE.md
+* 47. Kenny Burrell & John Coltrane – Kenny Burrell & John Coltrane
+48. Pat Metheny – Bright Size Life
+49. Grant Green – Street of Dreams
+50. Emily Remler – Firefly
+* 51. Grant Green – Complete Quartets with Sonny Clark
+52. John McLaughlin – Extrapolation
+53. Joe Pass – For Django [MP3]
+54. Larry Coryell – Spaces - (have only "Spaces Revisited", MP3)
+* 55. Barney Kessel – To Swing or Not to Swing
+56. Tal Farlow – The Tal Farlow Album
+57. Emily Remler – Take Two
+* 58. John Scofield – Blue Matter
+59. Peter Bernstein – Earth Tones
+60. Julian Lage – View With a Room
 
 FOR REMOVE
-Scientist Meets the Roots Radics
-Malino
-2008-09-11 Maida Vale Studio 3, London
