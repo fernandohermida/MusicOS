@@ -1,5 +1,15 @@
 # MusicOS
 
+```
+ __  __           _       ___  ____
+|  \/  |_   _ ___(_) ___ / _ \/ ___|
+| |\/| | | | / __| |/ __| | | \___ \
+| |  | | |_| \__ \ | (__| |_| |___) |
+|_|  |_|\__,_|___/_|\___|\___/|____/
+
+  beets-powered music library agent
+```
+
 Agent-driven organization of a real music collection, built on the [beets](https://beets.io/) CLI, distributed as a Claude Code plugin.
 
 This is not a wiki or a knowledge base — it's a set of Claude Code skills that make it easy to bring new music into a personal library and keep it well organized: correct tags, correct on-disk placement, no duplicates, no gaps.
